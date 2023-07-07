@@ -20,7 +20,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', bodyParser.json());
+app.use('/', express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));

@@ -42,7 +42,7 @@ const deleteCard = (req, res) => {
         });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
@@ -63,7 +63,7 @@ const likeCard = (req, res) => {
       return res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
@@ -84,7 +84,7 @@ const dislikeCard = (req, res) => {
       return res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
