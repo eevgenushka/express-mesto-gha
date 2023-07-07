@@ -39,7 +39,7 @@ const deleteCard = (req, res) => {
       return card.remove();
     })
     .then(() => {
-      res.status(200).send({ message: "Карточка успешно удалена" });
+      res.status(200).send({ message: 'Карточка успешно удалена' });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {

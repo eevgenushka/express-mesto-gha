@@ -1,3 +1,4 @@
+const { CastError, ValidationError } = require('mongoose').Error;
 const User = require('../models/user');
 
 const ERROR_CODE = 400;
@@ -44,12 +45,9 @@ const getUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
+  const opts = { runValidators: true, new: true };
 
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true },
-  )
+  User.findByIdAndUpdate(req.user._id, { name, about }, opts)
     .then((user) => {
       if (!user) {
         return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
@@ -57,8 +55,10 @@ const updateUser = (req, res) => {
       return res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
+      } else if (err instanceof mongoose.CastError || err.name === 'CastError') {
+        res.status(COMMON_ERROR_CODE).send({ message: 'Передан некорректный id.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
       }
