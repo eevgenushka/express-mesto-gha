@@ -72,11 +72,12 @@ const updateUser = (req, res) => {
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
+  const opts = { runValidators: true, new: true };
 
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true },
+    opts,
   )
     .then((user) => {
       if (!user) {
@@ -85,8 +86,10 @@ const updateAvatar = (req, res) => {
       return res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
+      } else if (err instanceof mongoose.CastError || err.name === 'CastError') {
+        res.status(COMMON_ERROR_CODE).send({ message: 'Передан некорректный id.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
       }
