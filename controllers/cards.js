@@ -36,10 +36,10 @@ const deleteCard = (req, res) => {
       if (!card) {
         return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена.' });
       }
-      return card.remove();
-    })
-    .then(() => {
-      res.status(200).send({ message: 'Карточка успешно удалена' });
+      return card.remove()
+        .then(() => {
+          res.status(200).send({ message: 'Карточка успешно удалена' });
+        });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -58,12 +58,12 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена.' });
       }
       return res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
@@ -91,6 +91,7 @@ const dislikeCard = (req, res) => {
       }
     });
 };
+
 
 module.exports = {
   createCard,
