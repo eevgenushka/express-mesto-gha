@@ -7,14 +7,13 @@ const NOT_FOUND_ERROR_CODE = 404;
 const COMMON_ERROR_CODE = 500;
 
 const createCard = (req, res) => {
-  console.log(req.user._id);
   const { name, link } = req.body;
 
-  Cards.create({ name, link })
+  Cards.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя. ' });
+        res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании карты.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
       }
@@ -35,12 +34,15 @@ const deleteCard = (req, res) => {
   Cards.findById(cardId)
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена.' });
       }
-      return res.send(card);
+      return card.remove();
+    })
+    .then(() => {
+      res.status(200).send({ message: "Карточка успешно удалена" });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
