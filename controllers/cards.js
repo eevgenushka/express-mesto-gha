@@ -13,7 +13,7 @@ const createCard = (req, res) => {
   Cards.create({ name, link })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя. ' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
@@ -40,7 +40,7 @@ const deleteCard = (req, res) => {
       return res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
@@ -61,7 +61,7 @@ const likeCard = (req, res) => {
       return res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
@@ -82,7 +82,7 @@ const dislikeCard = (req, res) => {
       return res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });

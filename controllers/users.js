@@ -49,7 +49,6 @@ const updateUser = (req, res) => {
     req.user._id,
     { name, about },
     { new: true },
-
   )
     .then((user) => {
       if (!user) {
@@ -58,7 +57,7 @@ const updateUser = (req, res) => {
       return res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -81,7 +80,7 @@ const updateAvatar = (req, res) => {
       return res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
