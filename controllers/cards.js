@@ -79,19 +79,18 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка по указанному _id не найдена.' });
       }
       return res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
       } else {
-        res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
+        res.status(COMMON_ERROR_CODE).send({ message: 'Ошибка' });
       }
     });
 };
-
 
 module.exports = {
   createCard,
