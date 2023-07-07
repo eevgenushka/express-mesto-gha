@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 
 const NOT_FOUND_ERROR_CODE = 404;
 
@@ -21,7 +20,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/', express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
