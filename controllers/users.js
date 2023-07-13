@@ -88,8 +88,6 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
-      } else if (err instanceof mongoose.CastError || err.name === 'CastError') {
-        res.status(COMMON_ERROR_CODE).send({ message: 'Передан некорректный id.' });
       } else {
         res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
       }

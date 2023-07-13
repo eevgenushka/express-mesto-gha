@@ -6,6 +6,8 @@ const NOT_FOUND_ERROR_CODE = 404;
 
 const COMMON_ERROR_CODE = 500;
 
+const SUCCESS = 200;
+
 const createCard = (req, res) => {
   const { name, link } = req.body;
 
@@ -38,7 +40,7 @@ const deleteCard = (req, res) => {
       }
       return card.remove()
         .then(() => {
-          res.status(200).send({ message: 'Карточка успешно удалена' });
+          res.status(SUCCESS).send({ message: 'Карточка успешно удалена' });
         });
     })
     .catch((err) => {
