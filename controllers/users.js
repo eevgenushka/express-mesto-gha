@@ -9,6 +9,8 @@ const NOT_FOUND_ERROR_CODE = 404;
 
 const COMMON_ERROR_CODE = 500;
 
+const UNAUTHORIZED_CODE = 400;
+
 const createUser = (req, res) => {
   const {
     name,
@@ -56,7 +58,7 @@ const login = (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res.status(UNAUTHORIZED_CODE).send({ message: err.message });
     });
 };
 
