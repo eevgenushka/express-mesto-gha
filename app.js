@@ -1,5 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const auth = require('./middlewares/auth');
+
+const { createUser, login } = require('./controllers/users');
 
 const NOT_FOUND_ERROR_CODE = 404;
 
@@ -22,6 +25,10 @@ app.use((req, res, next) => {
 app.use('/', express.json());
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use(auth);
 
 app.use('*', (req, res) => {
   res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый ресурс не найден' });

@@ -1,4 +1,6 @@
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const ERROR_CODE = 400;
@@ -8,10 +10,33 @@ const NOT_FOUND_ERROR_CODE = 404;
 const COMMON_ERROR_CODE = 500;
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => {
+      res.send({
+        data: {
+          name: user.name,
+          email: user.email,
+          about: user.about,
+          avatar: user.avatar,
+          _id: user._id,
+        },
+      });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя. ' });
@@ -21,8 +46,30 @@ const createUser = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.send({
+        token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' }),
+      });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 const getUsers = (req, res) => {
   User.find({})
+    .then((users) => res.send({ users }))
+    .catch(() => {
+      res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
+    });
+};
+
+const getCurrentUser = (req, res) => {
+  User.findById(req.user)
     .then((users) => res.send({ users }))
     .catch(() => {
       res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -100,4 +147,6 @@ module.exports = {
   getUser,
   updateUser,
   updateAvatar,
+  login,
+  getCurrentUser,
 };
