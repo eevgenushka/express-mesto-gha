@@ -36,8 +36,8 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use(errors());
 app.use(ErrorHandler);
-app.use('*', auth, (req, res) => {
-  res.status(400).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use('*', auth, () => {
+  throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 app.listen(PORT, () => {
