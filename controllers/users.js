@@ -1,17 +1,12 @@
 const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const ERROR_CODE = 400;
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const AlreadyExistError = require('../errors/AlreadyExistError');
 
-const NOT_FOUND_ERROR_CODE = 404;
-
-const COMMON_ERROR_CODE = 500;
-
-const UNAUTHORIZED_CODE = 400;
-
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -40,15 +35,17 @@ const createUser = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные при создании пользователя. ' });
-        return;
+      if (err.code === 11000) {
+        next(new AlreadyExistError('Пользователь с данным email уже существует'));
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError('Ошибка валидации данных'));
+      } else {
+        next(err);
       }
-      res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -57,69 +54,60 @@ const login = (req, res) => {
         token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' }),
       });
     })
-    .catch((err) => {
-      res.status(UNAUTHORIZED_CODE).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ users }))
-    .catch(() => {
-      res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
-    });
+    .then((users) => {
+      res.send({ users });
+    })
+    .catch(next);
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user)
-    .then((users) => res.send({ users }))
-    .catch(() => {
-      res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
-    });
+    .then((user) => {
+      res.send({ user });
+    })
+    .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
     .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
-      }
-      return res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.CastError) {
-        res.status(ERROR_CODE).send({ message: 'Передан некорректный id.' });
+      if (user) {
+        res.send({ user });
       } else {
-        res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
+        throw new NotFoundError('Пользователь по указанному _id не найден');
       }
-    });
+    })
+    .catch(next);
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const opts = { runValidators: true, new: true };
 
   User.findByIdAndUpdate(req.user._id, { name, about }, opts)
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+        throw new NotFoundError('Пользователь по указанному _id не найден');
       }
-      return res.send(user);
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
-      } else if (err instanceof mongoose.CastError) {
-        res.status(COMMON_ERROR_CODE).send({ message: 'Передан некорректный id.' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const opts = { runValidators: true, new: true };
 
@@ -130,15 +118,16 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+        throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
-      return res.send(user);
+
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: 'Переданы некорректные данные.' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res.status(COMMON_ERROR_CODE).send({ message: 'Произошла ошибка' });
+        next(err);
       }
     });
 };

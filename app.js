@@ -2,10 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
 const auth = require('./middlewares/auth');
-
+const ErrorHandler = require('./errors/ErrorHandler');
+const NotFoundError = require('./errors/NotFoundError');
 const { createUser, login } = require('./controllers/users');
-
-const NOT_FOUND_ERROR_CODE = 404;
 
 const { PORT = 3000 } = process.env;
 
@@ -36,11 +35,10 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 app.use(errors());
-
+app.use(ErrorHandler);
 app.use('*', auth, (req, res) => {
-  res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый ресурс не найден' });
+  throw new NotFoundError('Страницы не существует');
 });
-
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
