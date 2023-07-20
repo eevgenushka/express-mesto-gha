@@ -18,13 +18,17 @@ app.use('/', express.json());
 app.use('/users', auth, require('./routes/users'));
 app.use('/cards', auth, require('./routes/cards'));
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().min(2).max(30)
-      .email(),
-    password: Joi.string().required().min(6),
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().min(2).max(30)
+        .email(),
+      password: Joi.string().required().min(6),
+    }),
   }),
-}), login);
+  login,
+);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -34,12 +38,12 @@ app.post('/signup', celebrate({
     password: Joi.string().required().min(8),
   }),
 }), createUser);
+app.use('*', auth, () => {
+  throw new NotFoundError('Страницы не существует');
+});
 app.use(errors());
 app.use(ErrorHandler);
-app.use('*', auth, () => {
-  throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
-});
-
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+  // eslint-disable-next-line no-console
+  console.log('Сервер запущен');
 });
