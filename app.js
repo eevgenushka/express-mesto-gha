@@ -36,7 +36,7 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use(errors());
 app.use(ErrorHandler);
-app.use('*', auth, (req, res) => {
+app.use('*', auth, () => {
   throw new NotFoundError('Страницы не существует');
 });
 app.listen(PORT, () => {
