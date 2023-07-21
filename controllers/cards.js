@@ -31,20 +31,20 @@ const deleteCard = (req, res, next) => {
   Cards.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFoundError({ message: 'Карточка по указанному _id не найдена.' });
+        throw new NotFoundError('Карточка по указанному _id не найдена.');
       }
       if (!card.owner.equals(req.user._id)) {
-        throw new NoRightsError({ message: 'Невозможно удалить карту с другим _id пользователя.' });
+        throw new NoRightsError('Невозможно удалить карту с другим _id пользователя.');
       }
       card.deleteOne()
         .then(() => {
-          res.status(SUCCESS).send({ message: 'Карточка успешно удалена' });
+          res.status(SUCCESS).send('Карточка успешно удалена');
         })
         .catch(next);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError({ message: 'Переданы некорректные данные.' }));
+        next(new BadRequestError('Переданы некорректные данные.'));
       } else {
         next(err);
       }

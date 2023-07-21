@@ -44,6 +44,5 @@ app.use('*', auth, () => {
 app.use(errors());
 app.use(ErrorHandler);
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
   console.log('Сервер запущен');
 });
