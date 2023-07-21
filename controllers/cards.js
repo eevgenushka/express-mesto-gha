@@ -38,7 +38,7 @@ const deleteCard = (req, res, next) => {
       }
       card.deleteOne()
         .then(() => {
-          res.status(SUCCESS).send('Карточка успешно удалена');
+          res.status(SUCCESS).send({ message: 'Карточка успешно удалена' });
         })
         .catch(next);
     })
